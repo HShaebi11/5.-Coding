@@ -1,6 +1,5 @@
 let pg;
-let controls = {};
-let values = {}; // Cache for parsed values
+let sliders = {};
 
 function setup() {
   let canvas = createCanvas(400, 400);
@@ -13,23 +12,20 @@ function setup() {
   pg.pixelDensity(1);
   pg.textFont('Roboto');
   
-  // Get references to all HTML inputs
-  controls = {
-    tilesX: document.getElementById('tilesX'),
-    tilesY: document.getElementById('tilesY'),
-    speed: document.getElementById('speed'),
-    dispX: document.getElementById('dispX'),
-    dispY: document.getElementById('dispY'),
-    offset: document.getElementById('offset')
-  };
+  // Create sliders
+  sliders.tilesX = createSlider(1, 80, 16, 1);
+  sliders.tilesY = createSlider(1, 80, 16, 1);
+  sliders.speed = createSlider(0, 1, 0.005, 0.01);
+  sliders.dispX = createSlider(0, 0.1, 0.05, 0.001);
+  sliders.dispY = createSlider(0, 0.2, 0, 0.01);
+  sliders.offset = createSlider(0, 300, 100, 1);
   
-  // Add input event listeners to update cached values
-  Object.keys(controls).forEach(key => {
-    controls[key].addEventListener('input', () => {
-      values[key] = parseFloat(controls[key].value);
-    });
-    // Initialize values
-    values[key] = parseFloat(controls[key].value);
+  // Position sliders
+  let y = 10;
+  Object.entries(sliders).forEach(([name, slider]) => {
+    slider.position(10, y);
+    slider.style('width', '80px');
+    y += 30;
   });
 }
 
@@ -48,18 +44,18 @@ function draw() {
   pg.text("a", 0, 0);
   pg.pop();
 
-  let tilesX = values.tilesX;
-  let tilesY = values.tilesY;
+  let tilesX = sliders.tilesX.value();
+  let tilesY = sliders.tilesY.value();
 
   // Calculate tile sizes based on actual canvas size
   let tileW = Math.floor(width/tilesX);
   let tileH = Math.floor(height/tilesY);
 
   // Pre-calculate wave values
-  let speed = values.speed;
-  let dispX = values.dispX;
-  let dispY = values.dispY;
-  let offset = values.offset;
+  let speed = sliders.speed.value();
+  let dispX = sliders.dispX.value();
+  let dispY = sliders.dispY.value();
+  let offset = sliders.offset.value();
   let time = frameCount * speed;
 
   for (let y = 0; y < tilesY; y++) {
@@ -81,4 +77,13 @@ function draw() {
       );
     }
   }
+  
+  // Draw labels
+  fill(255);
+  textAlign(LEFT, CENTER);
+  let y = 25;
+  Object.keys(sliders).forEach(name => {
+    text(name + ': ' + sliders[name].value(), 100, y);
+    y += 30;
+  });
 }
