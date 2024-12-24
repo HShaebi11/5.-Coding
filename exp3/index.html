@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Figma to CSS Converter</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        .button-group {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+        }
+        #output {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        #downloadBtn {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <input type="text" id="apiKey" placeholder="Figma API Key">
+        <input type="text" id="fileUrl" placeholder="Figma File URL (e.g., https://www.figma.com/file/xxxxx/...)">
+        <div class="button-group">
+            <button onclick="convert()">Convert to CSS</button>
+            <button id="downloadBtn" onclick="downloadCSS()">Download CSS</button>
+        </div>
+        <pre id="output"></pre>
+    </div>
+    <script src="figma-to-css-converter.js"></script>
+    <script>
+        let generatedCSS = '';
+
+        async function convert() {
+            const apiKey = document.getElementById('apiKey').value;
+            const fileUrl = document.getElementById('fileUrl').value;
+            const converter = new FigmaToCSS(apiKey);
+            
+            try {
+                generatedCSS = await converter.generateCSS(fileUrl);
+                document.getElementById('output').textContent = generatedCSS;
+                document.getElementById('downloadBtn').style.display = 'inline-block';
+            } catch (error) {
+                document.getElementById('output').textContent = 'Error: ' + error.message;
+                document.getElementById('downloadBtn').style.display = 'none';
+            }
+        }
+
+        function downloadCSS() {
+            if (!generatedCSS) return;
+
+            const blob = new Blob([generatedCSS], { type: 'text/css' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'figma-styles.css';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
